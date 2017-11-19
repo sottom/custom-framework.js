@@ -10,13 +10,13 @@
 
 
 // GLOBAL VARIABLES
-var scope = {};
-var separator1;
-var separator2;
-var originalDom;
-var firstRun = true;
-var changableDom; 
-var oldRenderedDom = null;
+var scope = {},
+    separator1,
+    separator2,
+    originalDom,
+    firstRun = true,
+    changableDom, 
+    oldRenderedDom = null;
 
 function storePattern(patt){
   // make sure parameters will work
@@ -106,65 +106,66 @@ function transpile(){
         prepareReplacementDom(replacement, a);
       }
     }
-      });
+  });
 
-    // if the changable dom is different than the previously renedered one, replace the old one
-    if(!oldRenderedDom || changableDom != oldRenderedDom){ // !oldRenderedDom means that this is the first time transpile function is being run
-      oldRenderedDom = changableDom;
-      document.querySelector('body').innerHTML = changableDom;
-    }
-
-  } 
-
-  function prepareReplacementDom(rep, a, type){
-    let replace = separator1 + "\\s*" + a + "\\s*" + separator2;
-    if(type == 'array'){
-      replace = replace.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
-    }
-    else if(type == 'function'){
-      replace = replace.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-    }
-    var regex = new RegExp(replace, 'g');
-    changableDom = changableDom.replace(regex, rep);
+  // if the changable dom is different than the previously renedered one, replace the old one
+  // !oldRenderedDom means that this is the first time transpile function is being run
+  if(!oldRenderedDom || changableDom != oldRenderedDom){ 
+    oldRenderedDom = changableDom;
+    document.querySelector('body').innerHTML = changableDom;
   }
 
-  function determineDomText(textForDom, variable, type){
-    // make sure evaluated field exists
-    if(textForDom == undefined){
-      let error;
-      switch(type){
-        case 'object':
-        case 'array':
-        error = doesNotExist(variable);
-        prepareReplacementDom(error, variable, type);
-        break;
-        case 'function':
-        error = functionReturnsUndefined(a);
-        prepareReplacementDom(error, variable, type);
-        break;
-      }
-    }
-    else {
-      prepareReplacementDom(textForDom, variable, type);
+} 
+
+function prepareReplacementDom(rep, a, type){
+  let replace = separator1 + "\\s*" + a + "\\s*" + separator2;
+  if(type == 'array'){
+    replace = replace.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+  }
+  else if(type == 'function'){
+    replace = replace.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  }
+  var regex = new RegExp(replace, 'g');
+  changableDom = changableDom.replace(regex, rep);
+}
+
+function determineDomText(textForDom, variable, type){
+  // make sure evaluated field exists
+  if(textForDom == undefined){
+    let error;
+    switch(type){
+      case 'object':
+      case 'array':
+      error = doesNotExist(variable);
+      prepareReplacementDom(error, variable, type);
+      break;
+      case 'function':
+      error = functionReturnsUndefined(a);
+      prepareReplacementDom(error, variable, type);
+      break;
     }
   }
-
-  function createRegExp(open, close, flag){
-    var rep = open + "\\s*(.+?)\\s*" + close;
-    return new RegExp(rep, flag);
+  else {
+    prepareReplacementDom(textForDom, variable, type);
   }
+}
 
-  function doesNotExist(variable){
-    return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> does not exist</span>";
-  }
+function createRegExp(open, close, flag){
+  var rep = open + "\\s*(.+?)\\s*" + close;
+  return new RegExp(rep, flag);
+}
 
-  function arrayError(variable){
-    return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is an array with more than one value. Please reflect this on your html page.</span>";
-  }
+function doesNotExist(variable){
+  return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> does not exist</span>";
+}
 
-  function functionReturnsUndefined(variable){
-    return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is a function that returns undefined.</span>";
-  }
+function arrayError(variable){
+  return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is an array with more than one value. Please reflect this on your html page.</span>";
+}
+
+function functionReturnsUndefined(variable){
+  return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is a function that returns undefined.</span>";
+}
 // CREATES GETTER AND SETTER FOR VARIABLES TO WATCH WHEN THEY CHANGE
 // function runScope() {
 //   var values = {};
