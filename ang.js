@@ -6,7 +6,7 @@
 
 // ISSUES
 
-//// (probably don't need to do this) I don't think users can add variables to scope dynamically in their code if they wanted to.
+//// (probably don't need to do this) I don't think users can add variables to t dynamically in their code if they wanted to.
 
 ///////////////////////////////////////////
 ///////////////////////////////////////////
@@ -14,8 +14,8 @@
 
 
 // GLOBAL VARIABLES
-var scope = {},
-    scopeGetSet = {},
+var t = {},
+    tGetSet = {},
     separator1,
     separator2,
     originalDom,
@@ -26,7 +26,7 @@ var scope = {},
 // GRABS THE HTML PAGE AND REPLACES PATTERNS
 function transpile(){
 
-  // grab the original document and store it globally and add getters and setters to scope
+  // grab the original document and store it globally and add getters and setters to t
   if(firstRun){
     firstRun = false;
     originalDom = document.querySelector('body').innerHTML;
@@ -86,7 +86,7 @@ function transpile(){
 
     // if an object
     if(a.match(/\./g)){
-      replacement = eval('scope.' + a);
+      replacement = eval('t.' + a);
       console.log(replacement);
       if(a.match(/\[/g)){
         determineDomText(replacement, a, 'array');
@@ -99,7 +99,7 @@ function transpile(){
 
     // if an array
     else if(a.match(/\[/g)){
-      replacement = eval('scope.' + a);
+      replacement = eval('t.' + a);
       determineDomText(replacement, a, 'array');
     }
 
@@ -127,7 +127,7 @@ function transpile(){
                 case 'object':
                 case 'array':
                 case 'variable':
-                return 'scope.' + param.trim();
+                return 't.' + param.trim();
                 break;
                 default:
                 throw new Error('Not a recognized type. Talk to developer.');
@@ -138,25 +138,25 @@ function transpile(){
         : ')';
 
 
-      replacement = eval('scope.' + funcName + funcParams);
+      replacement = eval('t.' + funcName + funcParams);
       determineDomText(replacement, a, 'function');
     }
     // not any of the above mentioned data types
     else {
       // make sure variable exists
-      if(typeof scope[a] !== 'undefined'){
+      if(typeof t[a] !== 'undefined'){
         // check if array
-        if(typeof scope[a] == 'object' && scope[a].length > 1){
+        if(typeof t[a] == 'object' && t[a].length > 1){
           replacement = arrayError(a);
           prepareReplacementDom(replacement, a, 'array');
         }
         //check if function
-        else if (typeof scope[a] == 'function'){
-          replacement = eval('scope.' + a + '()');
+        else if (typeof t[a] == 'function'){
+          replacement = eval('t.' + a + '()');
           determineDomText(replacement, a, 'function');
         }
         else {
-          replacement = scopeGetSet[a];
+          replacement = tGetSet[a];
           prepareReplacementDom(replacement, a);
         }
       }
@@ -244,30 +244,30 @@ function createRegExp(open, close, flag){
 
 
 function doesNotExist(variable){
-  return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> does not exist</span>";
+  return "<span style='color:red;'>ERROR: <u>t."+variable+"</u> does not exist</span>";
 }
 
 
 function arrayError(variable){
-  return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is an array with more than one value. Please reflect this on your html page.</span>";
+  return "<span style='color:red;'>ERROR: <u>t."+variable+"</u> is an array with more than one value. Please reflect this on your html page.</span>";
 }
 
 
 function functionReturnsUndefined(variable){
-  return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is a function that returns undefined.</span>";
+  return "<span style='color:red;'>ERROR: <u>t."+variable+"</u> is a function that returns undefined.</span>";
 }
 
 
 function runScope(){
-  for(let val in scope){
-    scopeGetSet[val] = scope[val];
+  for(let val in t){
+    tGetSet[val] = t[val];
   }
-  scope = {};
-  for(let sc in scopeGetSet){
-    Object.defineProperty(scope, sc, {
-      get: function(){ return scopeGetSet[sc]; },
+  t = {};
+  for(let sc in tGetSet){
+    Object.defineProperty(t, sc, {
+      get: function(){ return tGetSet[sc]; },
       set: function(val){ 
-        scopeGetSet[sc] = val; 
+        tGetSet[sc] = val; 
         transpile();
       }
     });
@@ -284,9 +284,9 @@ function checkParamType(param){
   }
   else {
     //if variable is object or array
-    if(typeof eval('scope.' + param) == 'object'){
+    if(typeof eval('t.' + param) == 'object'){
       // array
-      if(typeof eval('scope.'+param).length == 'undefined'){
+      if(typeof eval('t.'+param).length == 'undefined'){
         return 'array';
       }
       // object
@@ -295,7 +295,7 @@ function checkParamType(param){
       }
     }
     //if variable is function
-    else if (typeof eval('scope.'+param) == 'function'){
+    else if (typeof eval('t.'+param) == 'function'){
       return 'function';
     }
     else {
