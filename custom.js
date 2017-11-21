@@ -1,85 +1,32 @@
-scope.name = "Mitchell";
-scope.sheri = "Is beautiful";
-scope.age = 12;
-scope.func = function(){
-  return 'bob';
-};
-scope.func2 = function(name){
-  return name;
-};
-scope.person = function(){
-  name : {
-    fname : "Mitch";
-  }
-}
+t.name = "Mitchell";
+t.age = 12;
 
-//name doesn't dynamically change when I change it in the console
-scope.func3 = function(name, num, string){
-  return name + ' ' + num + ' ' + string;
-};
+t.obj = {};
+t.obj1 = { bob: 'bob'};
+// t.obj = { bob: 1 };
+// t.obj = { 1: bob };
+// t.obj = { bob: functions };
+// t.obj = { bob: objects };
+// t.obj = { bob: arrays };
 
-scope.bob = {
-  bob : scope.func
-};
+// t.func = function() { return 1; };
+// t.func = function() { return obj; };
+// t.func = function() { return arr; };
+// t.func = function() { return functions; };
+// t.func = function(name) { return name + age; };
+// t.func = function(name, age) { return name + age; };
 
+// t.arr = [];
+// t.arr = ['cat'];
+// t.arr = [2];
+// t.arr = ['cat', 'dog'];
+// t.arr = [2, 'dog'];
+// t.arr = [object];
+// t.arr = [functions];
+// t.arr = [arrays];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// scope.func = function() { };
-// scope.func = function() { return 'bob'; };
-// scope.func = function() { return 1; };
-// scope.func = function() { return obj; };
-// scope.func = function() { return arr; };
-// scope.func = function() { return functions; };
-// scope.func = function(name) { return name + age; };
-// scope.func = function(name, age) { return name + age; };
-
-// scope.obj = {};
-// scope.obj = { bob: 'bob'};
-// scope.obj = { bob: 1 };
-// scope.obj = { 1: bob };
-// scope.obj = { bob: functions };
-// scope.obj = { bob: objects };
-// scope.obj = { bob: arrays };
-
-// scope.arr = [];
-// scope.arr = ['cat'];
-// scope.arr = [2];
-// scope.arr = ['cat', 'dog'];
-// scope.arr = [2, 'dog'];
-// scope.arr = [object];
-// scope.arr = [functions];
-// scope.arr = [arrays];
-
-// scope.name = "bob";
-// scope.age = 12;
+// t.name = "bob";
+// t.age = 12;
 
 
 
@@ -113,7 +60,7 @@ scope.bob = {
 //     if(typeof names[a] == 'undefined'){
 //       a = 0;
 //     }
-//     scope.name = names[a];
+//     t.name = names[a];
 //     a++;
 //   }, 1000);
 
@@ -123,6 +70,6 @@ scope.bob = {
 //     if(typeof cats[b] == 'undefined'){
 //       b = 0;
 //     }
-//     scope.cat = cats[b];
+//     t.cat = cats[b];
 //     b++;
 //   }, 1500);

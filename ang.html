@@ -11,8 +11,13 @@
 <body id="">
 
 
-  <p>My name is {{ bob.bob() }}</p>
-  <p>My name is {{ func3(func(), 1, "YESSS") }}</p>
+  <p><b>Name:</b> {{ name }}</p>
+  <p><b>Name Error:</b> {{ frank }}</p>
+  <p><b>Age:</b> {{ age }}</p>
+
+  <p><b>Empty obj:</b> {{ obj }}</p>
+  <p><b>Non-existing property of obj:</b> {{ obj.name }}</p>
+  <p><b>obj:</b> {{ obj1.bob }}</p>
 
 
   <script>

@@ -61,112 +61,41 @@ function transpile(){
 
 
 
-// options
-//// Objects
-////// name["name"], name['name'], name[`name`], name[variable]
-////// name.name, name.name[any of the above for array or object], name.name()
-
-//// Arrays
-////// name - this prints all, name[0]
-
-//// Functions
-////// name, name(), name(variables, variables)
-
-//// Variable with string or number
-////// name 
-
-//// String and Number - nothing, don't use framework
-
   // replace the variables from the dom with their values from user's js file
   arrToReplace.forEach(a => {
     let replacement;
+    console.log(a);
 
-    //object within function
+    //////////////////////////////////////////////////////////////////
+    // NORMAL VARIABLE
+    //////////////////////////////////////////////////////////////////
 
-
-    // if an object
-    if(a.match(/\./g)){
-      replacement = eval('t.' + a);
-      console.log(replacement);
-      if(a.match(/\[/g)){
-        determineDomText(replacement, a, 'array');
-      }
-      else {
-        determineDomText(replacement, a, 'object');
-      }
+    // make sure variable exists
+    if(typeof t[a] !== 'undefined'){
+      replacement = t[a];
+      prepareReplacementDom(replacement, a);
     }
-
-
-    // if an array
-    else if(a.match(/\[/g)){
-      replacement = eval('t.' + a);
-      determineDomText(replacement, a, 'array');
-    }
-
-
-    // if a function
-    else if(a.match(/\(/g)){
-      let funcName = a.slice(0, a.indexOf('(') + 1);
-      //TODO - allow people to pass objects and functions, check them recursively
-      let funcParams = a.match(/\(.+\)/g)
-        ? a.match(/\(.+\)/g)[0]
-           .slice(1, -1)
-           .split(",")
-           .map(param => {
-              // if they pass in a string or an integer
-              let paramType = checkParamType(param);
-
-              switch(paramType){
-                case 'string':
-                return param.trim();
-                break;
-                case 'number':
-                return param.trim();
-                break;
-                case 'function':
-                case 'object':
-                case 'array':
-                case 'variable':
-                return 't.' + param.trim();
-                break;
-                default:
-                throw new Error('Not a recognized type. Talk to developer.');
-                break;
-              }
-           })
-           .join(',') + ')'
-        : ')';
-
-
-      replacement = eval('t.' + funcName + funcParams);
-      determineDomText(replacement, a, 'function');
-    }
-    // not any of the above mentioned data types
+    // if variable doesn't exist, error message
     else {
-      // make sure variable exists
-      if(typeof t[a] !== 'undefined'){
-        // check if array
-        if(typeof t[a] == 'object' && t[a].length > 1){
-          replacement = arrayError(a);
-          prepareReplacementDom(replacement, a, 'array');
-        }
-        //check if function
-        else if (typeof t[a] == 'function'){
-          replacement = eval('t.' + a + '()');
-          determineDomText(replacement, a, 'function');
-        }
-        else {
-          replacement = tGetSet[a];
-          prepareReplacementDom(replacement, a);
-        }
-      }
-      // if variable doesn't exist, error message
-      else {
-        replacement = doesNotExist(a);
-        prepareReplacementDom(replacement, a);
-      }
+      replacement = doesNotExist(a);
+      prepareReplacementDom(replacement, a);
     }
-  });
+
+    //////////////////////////////////////////////////////////////////
+    // OBJECT WORKAROUNDS
+    //////////////////////////////////////////////////////////////////
+
+    if(a.match(/\./g)){
+      a = a.split('.')
+      .map(c => c.match(/\[/g) 
+        ? c.replace(/\[/g, '+++[').split('+++') 
+        : c)
+      .reduce((prev, curr, index) => 
+        { 
+          return prev.concat(curr);
+        }, [] );
+    }
+
 
   // if the changable dom is different than the previously renedered one, replace the old one
   // !oldRenderedDom means that this is the first time transpile function is being run
@@ -188,27 +117,28 @@ function transpile(){
 
 function prepareReplacementDom(rep, a, type){
   let replace;
-  console.log(replace);
-  if(type == 'array'){
-    replace = replace.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
-  }
-  else if(type == 'function'){
-    replace = replace.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-  }
-  else {
-    if(a.match(/\(/g)){
-      backoutSpecialChars(a, '(');
-      function backoutSpecialChars(text, char){
-        let string ;
-        if(char == '(' || char == ')'){
+  // if(type == 'array'){
+  //   replace = replace.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+  // }
+  // else if(type == 'function'){
+  //   replace = replace.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  // }
+  // else {
+  //   if(a.match(/\(/g)){
+  //     backoutSpecialChars(a, '(');
+  //     function backoutSpecialChars(text, char){
+  //       let string ;
+  //       if(char == '(' || char == ')'){
 
-        string = '\\' + char;
-        }
-        text.replace()
-      }
-    }
-    replace = separator1 + "\\s*" + a + "\\s*" + separator2;
-  }
+  //       string = '\\' + char;
+  //       }
+  //       text.replace()
+  //     }
+  //   }
+  //   replace = separator1 + "\\s*" + a + "\\s*" + separator2;
+  // }
+  replace = separator1 + "\\s*" + a + "\\s*" + separator2;
+  console.log(replace);
   var regex = new RegExp(replace, 'g');
   changableDom = changableDom.replace(regex, rep);
 }
