@@ -4,6 +4,10 @@
 //// get error messages working for all the types (use recursion?)
 //// clean up the code in this file (make is nicer and easier to understand)
 
+// ISSUES
+
+//// (probably don't need to do this) I don't think users can add variables to scope dynamically in their code if they wanted to.
+
 ///////////////////////////////////////////
 ///////////////////////////////////////////
 
@@ -11,6 +15,7 @@
 
 // GLOBAL VARIABLES
 var scope = {},
+    scopeGetSet = {},
     separator1,
     separator2,
     originalDom,
@@ -18,31 +23,21 @@ var scope = {},
     changableDom, 
     oldRenderedDom = null;
 
-function storePattern(patt){
-  // make sure parameters will work
-  if(patt.length != 2 || typeof patt[0] != 'string' || typeof patt[1] != 'string'){
-    transpile = null;
-    return alert("Please pass in two string parameters");
-  }
-  separator1 = patt[0]; 
-  separator2 = patt[1];
-}
-
-
 // GRABS THE HTML PAGE AND REPLACES PATTERNS
 function transpile(){
 
-  // grab the original document and store it globally and call runScope()
+  // grab the original document and store it globally and add getters and setters to scope
   if(firstRun){
     firstRun = false;
     originalDom = document.querySelector('body').innerHTML;
-    // runScope();
+    runScope();
   }
 
   // create a regular expression to grab variables from the dom
   let reg = createRegExp(separator1, separator2, 'g');
   changableDom = originalDom;
   let arrToReplace = changableDom.match(reg);
+
 
 
   // return if there is nothing to be changed
@@ -56,32 +51,97 @@ function transpile(){
   }
 
 
+
+
+
+
+
+
+
+
+
+
+// options
+//// Objects
+////// name["name"], name['name'], name[`name`], name[variable]
+////// name.name, name.name[any of the above for array or object], name.name()
+
+//// Arrays
+////// name - this prints all, name[0]
+
+//// Functions
+////// name, name(), name(variables, variables)
+
+//// Variable with string or number
+////// name 
+
+//// String and Number - nothing, don't use framework
+
   // replace the variables from the dom with their values from user's js file
   arrToReplace.forEach(a => {
     let replacement;
-    // check if variable is an object
+
+    //object within function
+
+
+    // if an object
     if(a.match(/\./g)){
       replacement = eval('scope.' + a);
-      determineDomText(replacement, a, 'object');
+      console.log(replacement);
+      if(a.match(/\[/g)){
+        determineDomText(replacement, a, 'array');
+      }
+      else {
+        determineDomText(replacement, a, 'object');
+      }
     }
+
+
     // if an array
     else if(a.match(/\[/g)){
       replacement = eval('scope.' + a);
       determineDomText(replacement, a, 'array');
     }
+
+
     // if a function
     else if(a.match(/\(/g)){
-      let funcName = a.match(/.+\(/g)[0];
-      let funcParams = a.match(/\(.+\)/g)[0]
-                        .replace(/[\(\)]/g, '')
-                        .split(",")
-                        .map(param => 'scope.' + param.trim())
-                        .join(',') + ')';
+      let funcName = a.slice(0, a.indexOf('(') + 1);
+      //TODO - allow people to pass objects and functions, check them recursively
+      let funcParams = a.match(/\(.+\)/g)
+        ? a.match(/\(.+\)/g)[0]
+           .slice(1, -1)
+           .split(",")
+           .map(param => {
+              // if they pass in a string or an integer
+              let paramType = checkParamType(param);
+
+              switch(paramType){
+                case 'string':
+                return param.trim();
+                break;
+                case 'number':
+                return param.trim();
+                break;
+                case 'function':
+                case 'object':
+                case 'array':
+                case 'variable':
+                return 'scope.' + param.trim();
+                break;
+                default:
+                throw new Error('Not a recognized type. Talk to developer.');
+                break;
+              }
+           })
+           .join(',') + ')'
+        : ')';
+
 
       replacement = eval('scope.' + funcName + funcParams);
       determineDomText(replacement, a, 'function');
     }
-    // not object and not written as an array
+    // not any of the above mentioned data types
     else {
       // make sure variable exists
       if(typeof scope[a] !== 'undefined'){
@@ -96,7 +156,7 @@ function transpile(){
           determineDomText(replacement, a, 'function');
         }
         else {
-          replacement = scope[a];
+          replacement = scopeGetSet[a];
           prepareReplacementDom(replacement, a);
         }
       }
@@ -117,17 +177,42 @@ function transpile(){
 
 } 
 
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// SUPPORTING FUNCTIONS /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 function prepareReplacementDom(rep, a, type){
-  let replace = separator1 + "\\s*" + a + "\\s*" + separator2;
+  let replace;
+  console.log(replace);
   if(type == 'array'){
     replace = replace.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
   }
   else if(type == 'function'){
     replace = replace.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
   }
+  else {
+    if(a.match(/\(/g)){
+      backoutSpecialChars(a, '(');
+      function backoutSpecialChars(text, char){
+        let string ;
+        if(char == '(' || char == ')'){
+
+        string = '\\' + char;
+        }
+        text.replace()
+      }
+    }
+    replace = separator1 + "\\s*" + a + "\\s*" + separator2;
+  }
   var regex = new RegExp(replace, 'g');
   changableDom = changableDom.replace(regex, rep);
 }
+
 
 function determineDomText(textForDom, variable, type){
   // make sure evaluated field exists
@@ -146,50 +231,91 @@ function determineDomText(textForDom, variable, type){
     }
   }
   else {
+     console.log(textForDom);
     prepareReplacementDom(textForDom, variable, type);
   }
 }
+
 
 function createRegExp(open, close, flag){
   var rep = open + "\\s*(.+?)\\s*" + close;
   return new RegExp(rep, flag);
 }
 
+
 function doesNotExist(variable){
   return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> does not exist</span>";
 }
+
 
 function arrayError(variable){
   return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is an array with more than one value. Please reflect this on your html page.</span>";
 }
 
+
 function functionReturnsUndefined(variable){
   return "<span style='color:red;'>ERROR: <u>scope."+variable+"</u> is a function that returns undefined.</span>";
 }
-// CREATES GETTER AND SETTER FOR VARIABLES TO WATCH WHEN THEY CHANGE
-// function runScope() {
-//   var values = {};
-//   for(var sc in scope){
-//     values[sc] = scope[sc];
-//   }
-
-//   for(var sc in scope){
-//     Object.defineProperty(values, sc, {
-//       get: function() { return values[sc]; }, 
-//       set: function(newValue) { 
-//         values[sc] = newValue; 
-//       },
-//       configurable: true
-//     });
-//   }
-//   return values;
 
 
-// }
+function runScope(){
+  for(let val in scope){
+    scopeGetSet[val] = scope[val];
+  }
+  scope = {};
+  for(let sc in scopeGetSet){
+    Object.defineProperty(scope, sc, {
+      get: function(){ return scopeGetSet[sc]; },
+      set: function(val){ 
+        scopeGetSet[sc] = val; 
+        transpile();
+      }
+    });
+  }
+}
+
+
+function checkParamType(param){
+  if(param.match('"')){
+    return 'string';
+  }
+  else if(Number.isInteger(parseInt(param))){
+    return 'number';
+  }
+  else {
+    //if variable is object or array
+    if(typeof eval('scope.' + param) == 'object'){
+      // array
+      if(typeof eval('scope.'+param).length == 'undefined'){
+        return 'array';
+      }
+      // object
+      else {
+        return 'object';
+      }
+    }
+    //if variable is function
+    else if (typeof eval('scope.'+param) == 'function'){
+      return 'function';
+    }
+    else {
+      return 'variable';
+    }
+  }
+}
+
+
+function storePattern(patt){
+  // make sure parameters will work
+  if(patt.length != 2 || typeof patt[0] != 'string' || typeof patt[1] != 'string'){
+    transpile = null;
+    return alert("Please pass in two string parameters");
+  }
+  separator1 = patt[0]; 
+  separator2 = patt[1];
+}
+
 
 window.addEventListener('DOMContentLoaded', function(e){
   transpile();
-  setInterval(function(){
-    transpile();
-  }, 300);
 });

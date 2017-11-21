@@ -1,3 +1,57 @@
+scope.name = "Mitchell";
+scope.sheri = "Is beautiful";
+scope.age = 12;
+scope.func = function(){
+  return 'bob';
+};
+scope.func2 = function(name){
+  return name;
+};
+scope.person = function(){
+  name : {
+    fname : "Mitch";
+  }
+}
+
+//name doesn't dynamically change when I change it in the console
+scope.func3 = function(name, num, string){
+  return name + ' ' + num + ' ' + string;
+};
+
+scope.bob = {
+  bob : scope.func
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // scope.func = function() { };
 // scope.func = function() { return 'bob'; };
 // scope.func = function() { return 1; };

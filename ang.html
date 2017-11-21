@@ -10,24 +10,11 @@
 </head>
 <body id="">
 
-  <p>{{ func }}</p>
-  <p>{{ func() }}</p>
-  <p>{{ func(name, age, gender) }}</p>
+
+  <p>My name is {{ bob.bob() }}</p>
+  <p>My name is {{ func3(func(), 1, "YESSS") }}</p>
 
 
-  <p>{{ arr }}</p>
-  <p>{{ arr[] }}</p>
-  <p>{{ arr[0] }}</p>
-
-
-  <p>{{ string variable }}</p>
-  <p>{{ number variable }}</p>
-
-
-  <p>{{ object }}</p>
-  <p>{{ object[] }}</p>
-  <p>{{ object.object }}</p>
-  
   <script>
     storePattern(['{{','}}']); //call this after html loads
   </script>
