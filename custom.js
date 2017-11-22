@@ -2,12 +2,22 @@ t.name = "Mitchell";
 t.age = 12;
 
 t.obj = {};
-t.obj1 = { bob: 'bob'};
-// t.obj = { bob: 1 };
-// t.obj = { 1: bob };
-// t.obj = { bob: functions };
-// t.obj = { bob: objects };
-// t.obj = { bob: arrays };
+t.obj1 = { bob: 'jill'};
+t.obj2 = { bob: 1 };
+t.obj4 = { 
+  bill: function(){return 'bob';},  
+  frank: 6 
+};
+t.obj5 = { bob: { bob : 'siz' } };
+t.obj6 = { bob: ['bob','cat'] };
+t.func = function(name, friend, age, variable, funct, funct2){
+  return name + ' ' + friend + ' ' + age + ' ' + variable + ' ' + funct() + ' ' + funct2();
+};
+t.func1 = function(){ return "no params"};
+t.func2 = function(name, age){ return name + ' ' + age; };
+
+t.dad = "Richard";
+
 
 // t.func = function() { return 1; };
 // t.func = function() { return obj; };
