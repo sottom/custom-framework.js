@@ -34,6 +34,10 @@ var byString = function(o, s) {
             else if(Number.isInteger(parseInt(p))){
               return p.trim();
             }
+            else if(p.includes('()')){
+              // function with no parameters
+              return byString(t, p.replace('()', '').trim());
+            }
             else {
               //variable name
               return byString(t, p.trim());

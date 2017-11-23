@@ -10,11 +10,11 @@ t.obj4 = {
 };
 t.obj5 = { bob: { bob : 'siz' } };
 t.obj6 = { bob: ['bob','cat'] };
-t.func = function(name, friend, age, variable, funct, funct2){
-  return name + ' ' + friend + ' ' + age + ' ' + variable + ' ' + funct() + ' ' + funct2();
+t.func = function(name, friend, age, variable, funct2, funct1, funct){
+  return name + ' ' + friend + ' ' + age + ' ' + variable + ' ' + funct2() + ' ' + funct1() + ' ' + funct();
 };
 t.func1 = function(){ return "no params"};
-t.func2 = function(name, age){ return name + ' ' + age; };
+t.func2 = function(name, age, friend){ return name + ' ' + age + ' ' + friend; };
 
 t.dad = "Richard";
 
