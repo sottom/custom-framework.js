@@ -24,7 +24,6 @@ function transpile(prop){
     firstRun = false;
 
     // create a regular expression to grab variables from the dom
-    // let reg = createRegExp(separator1, separator2, 'g');
     originalNodes.forEach(node => {
       node.forEach(n => {
         let pattern = separator1 + "(.+)" + separator2;
@@ -103,37 +102,6 @@ var byString = function(o, s) {
 };
 
 
-// TODO - ADD MORE SPECIAL CHARACTERS
-function prepareReplacementDom(rep, a, type){
-  let replace;
-  replace = separator1 + "\\s*" + a + "\\s*" + separator2;
-  if(replace.match(/\(/g)){ replace = replace.replace(/\(/g, '\\('); }
-  if(replace.match(/\)/g)){ replace = replace.replace(/\)/g, '\\)'); }
-  if(replace.match(/\[/g)){ replace = replace.replace(/\[/g, '\\['); }
-  if(replace.match(/\]/g)){ replace = replace.replace(/\]/g, '\\]'); }
-  if(replace.match(/\./g)){ replace = replace.replace(/\./g, '\\.'); }
-  var regex = new RegExp(replace, 'g');
-  changableNodes = changableNodes.replace(regex, rep);
-}
-
-
-// TODO - ADD MORE SPECIAL CHARACTERS
-function createRegExp(open, close, flag){
-  if(open.match(/\(/g)){ open = open.replace(/\(/g, '\\('); }
-  if(open.match(/\)/g)){ open = open.replace(/\)/g, '\\)'); }
-  if(open.match(/\[/g)){ open = open.replace(/\[/g, '\\['); }
-  if(open.match(/\]/g)){ open = open.replace(/\]/g, '\\]'); }
-  if(open.match(/\./g)){ open = open.replace(/\./g, '\\.'); }
-  if(close.match(/\(/g)){ close = close.replace(/\(/g, '\\('); }
-  if(close.match(/\)/g)){ close = close.replace(/\)/g, '\\)'); }
-  if(close.match(/\[/g)){ close = close.replace(/\[/g, '\\['); }
-  if(close.match(/\]/g)){ close = close.replace(/\]/g, '\\]'); }
-  if(close.match(/\./g)){ close = close.replace(/\./g, '\\.'); }
-  var rep = open + "\\s*(.+?)\\s*" + close;
-  return new RegExp(rep, flag);
-}
-
-
 function doesNotExist(variable){
   return "<span style='color:red;'>ERROR: <u>"+variable+"</u> does not exist</span>";
 }
@@ -169,16 +137,28 @@ function runScope(){
 
 
 function storePattern(patt){
-  // add necessary data annotations
-  document.querySelector('body').innerHTML = document.querySelector('body').innerHTML.replace(/(<\w+>*.*)(@@\s*t\.(.+)\s*@@)(.*(?:\/*\s*>)?(?:<\/\w+>)?)/g, '$1<span t-data-$3>$2</span>$4');
-  // make sure parameters will work
+
   console.log('storepattern');
+  // make sure parameters will work
   if(patt.length != 2 || typeof patt[0] != 'string' || typeof patt[1] != 'string'){
     transpile = null;
     return alert("Please pass in two string parameters");
   }
+
   separator1 = patt[0]; 
   separator2 = patt[1];
+
+  // add necessary data attributes to track tags with variables
+  if(separator1.includes('[')) { separator1.replace(/\[/g, '\\['); }
+  if(separator1.includes(']')) { separator1.replace(/\]/g, '\\]'); }
+  if(separator1.includes('(')) { separator1.replace(/\(/g, '\\('); }
+  if(separator1.includes(')')) { separator1.replace(/\)/g, '\\)'); }
+  if(separator1.includes('.')) { separator1.replace(/\./g, '\\.'); } //not working
+  if(separator1.includes('/')) { separator1.replace(/\[/g, '\\/'); }
+  if(separator1.includes('\\')) { separator1.replace(/\\/g, '\\\\'); } // not working
+  let pattern = `(<\\w+>*.*)(${separator1}\\s*t\\.(.+)\\s*${separator2})(\\.*(?:\\/*\\s*>)?(?:<\\/\\w+>)?)`;
+  let regex = new RegExp(pattern, 'g');
+  document.querySelector('body').innerHTML = document.querySelector('body').innerHTML.replace(regex, '$1<span t-data-$3>$2</span>$4');
 }
 
 
